@@ -6,7 +6,7 @@
 /*   By: fhoshina <fhoshina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 22:22:28 by fhoshina          #+#    #+#             */
-/*   Updated: 2024/11/29 00:42:59 by fhoshina         ###   ########.fr       */
+/*   Updated: 2024/12/15 16:15:47 by fhoshina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,15 @@ char	*string_func(char *string, char string_number)
 
 	i = 0;
 	j = 0;
-	// if (string == NULL)
-	// 	tmp = malloc(2);
-	// else
-	tmp = malloc(ft_strlen(string) + 2 * sizeof(char));
+	if (string == NULL)
+		tmp = malloc(2);
+	else
+		tmp = malloc(ft_strlen(string) + 2 * sizeof(char));
 	if (!tmp)
 		return (NULL);
 	while (string[i])
 		tmp[j++] = string[i++];
-	tmp[j++] = (char)string_number;
+	tmp[j++] = string_number;
 	tmp[j] = '\0';
 	free(string);
 	return (tmp);
@@ -36,7 +36,8 @@ char	*string_func(char *string, char string_number)
 
 int	comeback_func(int nb, int num)
 {
-	int res;
+	int	res;
+
 	res = 0;
 	if (num == 0)
 		return (1);
@@ -53,8 +54,7 @@ void	signal_handler(int sig, siginfo_t *info, void *ucontext)
 {
 	static int	bitcnt = 0;
 	static int	string_number = 0;
-	static int	string_end_number = 0;
-	static char	*string;
+	static char	*string = NULL;
 
 	if (!string)
 		string = ft_strdup("");
@@ -65,31 +65,22 @@ void	signal_handler(int sig, siginfo_t *info, void *ucontext)
 	bitcnt++;
 	if (bitcnt == 8)
 	{
-		string = string_func(string, string_number);
-		if (string_number == '\0')
-		{
-			ft_printf("%s\n", string);
-			free(string);
-			string = NULL;
-		}
+		write(1, &string_number, 1);
 		string_number = 0;
 		bitcnt = 0;
-
-		kill(info->si_pid, SIGUSR1);
 	}
+	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
 {
-	struct sigaction signal;
+	struct sigaction	signal;
 
 	printf("server pid = %d\n", getpid());
-
 	signal.sa_sigaction = signal_handler;
-	signal.sa_flags = 0;
+	signal.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &signal, NULL);
 	sigaction(SIGUSR2, &signal, NULL);
-
 	while (1)
 		pause();
 }
