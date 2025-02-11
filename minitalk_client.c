@@ -6,7 +6,7 @@
 /*   By: fhoshina <fhoshina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 22:22:03 by fhoshina          #+#    #+#             */
-/*   Updated: 2024/12/15 16:16:51 by fhoshina         ###   ########.fr       */
+/*   Updated: 2025/02/11 16:20:55 by fhoshina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,19 +52,21 @@ int	main(int argc, char *argv[])
 	if (argc == 3)
 	{
 		pid = ft_atoi(argv[1]);
-		if (!pid)
+		if (!(0 < pid && pid <= 4194304))
 		{
-			ft_printf("error");
+			write(2, "Error", 5);
 			return (0);
 		}
 		message = argv[2];
-		if (message[0] == 0)
+		if (!message || message[0] == '\0')
 		{
-			ft_printf("error");
+			write(2, "Error", 5);
 			return (0);
 		}
 		signal(SIGUSR1, ack_handler);
 		send_signal(pid, message);
 	}
+	else
+		write(2, "Error", 5);
 	return (0);
 }

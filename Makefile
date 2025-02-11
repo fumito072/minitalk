@@ -1,33 +1,48 @@
-NAME = minitalk.a
-SOURCES = minitalk_server.c minitalk_client.c
-OBJECTS = $(SOURCES:.c=.o)
+NAME_SERVER = server
+NAME_CLIENT = client
+
+SOURCES_SERVER = minitalk_server.c
+SOURCES_CLIENT = minitalk_client.c
+
+OBJECTS_SERVER = $(SOURCES_SERVER:.c=.o)
+OBJECTS_CLIENT = $(SOURCES_CLIENT:.c=.o)
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+LIBFT_DIR = libft
+PRINTF_DIR = printf
 
-all: server client
+LIBFT = $(LIBFT_DIR)/libft.a
+PRINTF = $(PRINTF_DIR)/libftprintf.a
+
+all: $(NAME_SERVER) $(NAME_CLIENT)
 
 bonus: all
 
-server: server.o libft
-	$(CC) -o $@ $< -Llibft -lft
+$(NAME_SERVER): $(OBJECTS_SERVER) $(LIBFT) $(PRINTF)
+	$(CC) $(CFLAGS) -o $@ $^ -L$(LIBFT_DIR) -lft -L$(PRINTF_DIR) -lftprintf
 
-client: client.o libft
-	$(CC) -o $@ $< -Llibft -lft
+$(NAME_CLIENT): $(OBJECTS_CLIENT) $(LIBFT) $(PRINTF)
+	$(CC) $(CFLAGS) -o $@ $^ -L$(LIBFT_DIR) -lft -L$(PRINTF_DIR) -lftprintf
+
+$(LIBFT):
+	make -C $(LIBFT_DIR)
+
+$(PRINTF):
+	make -C $(PRINTF_DIR)
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $<  # Use $< to explicitly refer to the source file
-
-libft:
-	make -C libft
+	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(OBJECTS)
-	make -C libft clean
-	
+	rm -f $(OBJECTS_SERVER) $(OBJECTS_CLIENT)
+	make -C $(LIBFT_DIR) clean
+	make -C $(PRINTF_DIR) clean
+
 fclean: clean
-	rm -f server client libft/libft.a
+	rm -f $(NAME_SERVER) $(NAME_CLIENT)
+	rm -f $(LIBFT) $(PRINTF)
 
 re: fclean all
 
-.PHONY: all bonus libft clean fclean re
+.PHONY: all bonus clean fclean re libft printf
